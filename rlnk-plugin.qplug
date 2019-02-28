@@ -1,0 +1,694 @@
+--[[
+Author: Lukas Borges
+Company: Pro Sound Inc.
+]]--
+
+PluginInfo = 
+{
+    Name = "RLNK",
+    Version = "5.3",
+    Id = "a7f8c50f-7235-4307-bcc9-2a3a91a7df32",
+    Description = "RLNK-215 Plugin for QSYS",
+    ShowDebug = true
+}
+
+function GetPrettyName(props)
+    return "Middle Atlantic RLNK-215 Plugin"
+end
+
+function GetColor(props)
+    return {240,0,240}
+end
+
+function GetProperties()
+    props = {
+        --[[
+        {
+            Name = "Input Count",
+            Type = "integer",
+            Min = 0,
+            Max = 0,
+            Value = 0,
+        }
+        ]]--
+    }
+    return props
+end
+
+function GetControls(props)
+    return
+    {
+        {
+            Name        = "address",
+            ControlType = "Text",
+            PinStyle    = "Input",
+            UserPin     = true
+        },
+        {
+            Name        = "port",
+            ControlType = "Text",
+            PinStyle    = "Input",
+            UserPin     = true
+        },
+        {
+            Name        = "username",
+            ControlType = "Text",
+            PinStyle    = "Input",
+            UserPin     = true
+        },
+        {
+            Name        = "password",
+            ControlType = "Text",
+            PinStyle    = "Input",
+            UserPin     = true
+        },
+        {
+            Name        = "connect",
+            ControlType = "Button",
+            ButtonType  = "Toggle",
+            Count       = 1,
+            PinStyle    = "Input",
+            UserPin     = true
+        },
+        {
+            Name          = "Outlet1",
+            ControlType   = "Button",
+            Count         = 1,
+            PinStyle      = "Input",
+            UserPin       = true,
+            IconType      = "SVG",
+            Icon          = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgNjMgNjMiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDYzIDYzOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHN0eWxlIHR5cGU9InRleHQvY3NzIj4uc3Qwe2ZpbGw6I0JBQkRDNjt9PC9zdHlsZT48cGF0aCBjbGFzcz0ic3QwIiBkPSJNNTkuOTE3LDYzSDMuMDgzQzEuMzg3LDYzLDAsNjEuNjEyLDAsNTkuOTE3VjMuMDgzQzAsMS4zODgsMS4zODcsMCwzLjA4MywwaDU2LjgzM0M2MS42MTIsMCw2MywxLjM4OCw2MywzLjA4M3Y1Ni44MzNDNjMsNjEuNjEyLDYxLjYxMiw2Myw1OS45MTcsNjN6Ii8+PHJlY3QgeD0iMzMiIHk9IjE0IiB3aWR0aD0iMjEiIGhlaWdodD0iNiIvPjxyZWN0IHg9IjM1IiB5PSI0NCIgd2lkdGg9IjE3IiBoZWlnaHQ9IjYiLz48cGF0aCBkPSJNOSwyNnYxMmMwLDAsNSwwLDgsMHM1LTIsNS02cy0yLTYtNS02QzE2LDI2LDksMjYsOSwyNnoiLz48L3N2Zz4="
+
+        },
+        {
+            Name          = "Outlet2",
+            ControlType   = "Button",
+            Count         = 1,
+            PinStyle      = "Input",
+            UserPin       = true,
+            IconType      = "SVG",
+            Icon          = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgNjMgNjMiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDYzIDYzOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHN0eWxlIHR5cGU9InRleHQvY3NzIj4uc3Qwe2ZpbGw6I0JBQkRDNjt9PC9zdHlsZT48cGF0aCBjbGFzcz0ic3QwIiBkPSJNNTkuOTE3LDYzSDMuMDgzQzEuMzg3LDYzLDAsNjEuNjEyLDAsNTkuOTE3VjMuMDgzQzAsMS4zODgsMS4zODcsMCwzLjA4MywwaDU2LjgzM0M2MS42MTIsMCw2MywxLjM4OCw2MywzLjA4M3Y1Ni44MzNDNjMsNjEuNjEyLDYxLjYxMiw2Myw1OS45MTcsNjN6Ii8+PHJlY3QgeD0iNiIgeT0iMTYiIHRyYW5zZm9ybT0ibWF0cml4KDYuMTIzMjM0ZS0xNyAtMSAxIDYuMTIzMjM0ZS0xNyAtMi41IDM1LjUpIiB3aWR0aD0iMjEiIGhlaWdodD0iNiIvPjxyZWN0IHg9IjM4IiB5PSIxNiIgdHJhbnNmb3JtPSJtYXRyaXgoNi4xMjMyMzRlLTE3IC0xIDEgNi4xMjMyMzRlLTE3IDI3LjUgNjUuNSkiIHdpZHRoPSIxNyIgaGVpZ2h0PSI2Ii8+PHBhdGggZD0iTTI1LjUsNTMuNWgxMmMwLDAsMC01LDAtOHMtMi01LTYtNXMtNiwyLTYsNUMyNS41LDQ2LjUsMjUuNSw1My41LDI1LjUsNTMuNXoiLz48L3N2Zz4="
+        },
+        {
+            Name          = "led_1",
+            ControlType   = "Indicator",
+            IndicatorType = "Led"
+        },
+        {
+            Name          = "led_2",
+            ControlType   = "Indicator",
+            IndicatorType = "Led"
+        }
+    }
+    end
+
+function GetControlLayout(props)
+    layout = {}
+
+    layout.address = 
+    {
+        IsBold       = true,
+        TextFontSize = 20,
+        Color        = { 255, 255, 255 },
+        Position     = { 198,  252 },
+        Size         = { 256, 32 }
+    }
+    layout.port = 
+    {
+        IsBold       = true,
+        TextFontSize = 20,
+        Color        = { 255, 255, 255 },
+        Position     = { 198,  284 },
+        Size         = { 256, 32 }
+    }
+    layout.username = 
+    {
+        -- default username: username
+        IsBold       = true,
+        TextFontSize = 20,
+        Color        = { 255, 255, 255 },
+        Position     = { 198,  316 },
+        Size         = { 256, 32 }
+    }
+    layout.password = 
+    {
+        -- default password: password
+        IsBold       = true,
+        TextFontSize = 20,
+        Color        = { 255, 255, 255 },
+        Position     = { 198,  348 },
+        Size         = { 256, 32 }
+    }
+    layout.connect = 
+    {
+        Legend       = "Connect",
+        Isbold       = true,
+        TextFontSize = 20,
+        Color        = { 0, 0, 255 },
+        Margin       = 0,
+        Radius       = 10,
+        Position     = { 466, 252 },
+        Size         = { 142, 32 }
+    }
+    layout.Outlet1 = 
+    {
+        Legend         = "",
+        PrettyName     = "outlet~1",
+        IsBold         = true,
+        TextFontSize   = 20,
+        UnlinkOffColor = true,
+        Color          = { 0, 255, 0 },
+        OffColor       = { 186, 189, 198 }, -- gray | dark blue { 0, 128, 255 } 
+        Margin         = 0,
+        Radius         = 5, -- 10
+        -- Position     = { 460, 252 },
+        Position       = { 182, 60 },
+        Size           = { 126, 126 }, -- { 120, 120 }
+        -- StrokeColor    = { 186, 189, 198 },
+        StrokeWidth    = 0
+    }
+    layout.Outlet2 = 
+    {
+        Legend         = "",
+        PrettyName     = "outlet~2",
+        IsBold         = true,
+        TextFontSize   = 20,
+        UnlinkOffColor = true,
+        Color          = { 0, 255, 0 },
+        OffColor       = { 186, 189, 198 }, -- { 0, 124, 0 },
+        Margin         = 0,
+        Radius         = 5,
+        Position       = { 338, 60 },
+        Size           = { 126, 126 },
+        -- StrokeColor    = { 186, 189, 198 },
+        StrokeWidth    = 0
+    }
+
+    layout.led_1 = 
+    {
+        Color    = { 0, 255, 0 },  -- green
+        OffColor = { 0, 124, 0 },  -- dark green
+        Position = { 141, 116 },
+        Size     = { 20, 20 }
+    }
+    layout.led_2 = 
+    {
+        Color    = { 0, 255, 0 }, -- green
+        OffColor = { 0, 124, 0 },  -- dark green
+        Position = { 483, 116 },
+        Size     = { 20, 20 }
+    }
+
+    graphics = 
+    {
+        {
+            Type = "Svg", -- JPEG
+            Image = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiIHZpZXdCb3g9IjAgMCAyNzUgOTIiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDI3NSA5MjsiIHhtbDpzcGFjZT0icHJlc2VydmUiPjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+LnN0MHtmaWxsOiMzMDMwMzA7fS5zdDF7ZmlsbDojRjdGN0Y3O30uc3Qye2ZpbGw6I0JBQkRDNjt9LnN0M3tmaWxsOiNGRkZGRkY7fTwvc3R5bGU+PGcgaWQ9IkxheWVyXzEiPjxwb2x5Z29uIGNsYXNzPSJzdDAiIHBvaW50cz0iMCwzNyAyMiw5IDgwLDAgODAsMiAxOTYsMiAxOTYsMCAyNTMsOCAyNzUsMzcgMjc1LDY3IDI2Miw5MiAxMyw5MiAwLDY4ICIvPjwvZz48ZyBpZD0iTGF5ZXJfMyI+PHBhdGggY2xhc3M9InN0MSIgZD0iTTIxMC44MzMsODdINjMuMTY3QzYxLjQyNSw4Nyw2MCw4NS41NzUsNjAsODMuODMzVjE5LjE2N0M2MCwxNy40MjUsNjEuNDI1LDE2LDYzLjE2NywxNmgxNDcuNjY3YzEuNzQyLDAsMy4xNjcsMS40MjUsMy4xNjcsMy4xNjd2NjQuNjY3QzIxNCw4NS41NzUsMjEyLjU3NSw4NywyMTAuODMzLDg3eiIvPjwvZz48ZyBpZD0iTGF5ZXJfMiI+PHBhdGggY2xhc3M9InN0MiIgZD0iTTIwNC45MTcsODRoLTU2LjgzM2MtMS42OTYsMC0zLjA4My0xLjM4Ny0zLjA4My0zLjA4M1YyNC4wODNjMC0xLjY5NiwxLjM4Ny0zLjA4MywzLjA4My0zLjA4M2g1Ni44MzNjMS42OTYsMCwzLjA4MywxLjM4OCwzLjA4MywzLjA4M3Y1Ni44MzNDMjA4LDgyLjYxMywyMDYuNjEzLDg0LDIwNC45MTcsODR6Ii8+PHBhdGggY2xhc3M9InN0MiIgZD0iTTEyNi45MTcsODRINzAuMDgzQzY4LjM4Nyw4NCw2Nyw4Mi42MTMsNjcsODAuOTE3VjI0LjA4M0M2NywyMi4zODgsNjguMzg3LDIxLDcwLjA4MywyMWg1Ni44MzNjMS42OTYsMCwzLjA4MywxLjM4OCwzLjA4MywzLjA4M3Y1Ni44MzNDMTMwLDgyLjYxMywxMjguNjEyLDg0LDEyNi45MTcsODR6Ii8+PC9nPjxnIGlkPSJMYXllcl80Ij48cmVjdCB4PSIxMDEiIHk9IjM0IiB3aWR0aD0iMjEiIGhlaWdodD0iNiIvPjxyZWN0IHg9IjEwMyIgeT0iNjQiIHdpZHRoPSIxNyIgaGVpZ2h0PSI2Ii8+PHBhdGggZD0iTTc3LDQ2djEyYzAsMCw1LDAsOCwwczUtMiw1LTZzLTItNi01LTZDODQsNDYsNzcsNDYsNzcsNDZ6Ii8+PC9nPjxnIGlkPSJMYXllcl81Ij48cmVjdCB4PSIxNTQiIHk9IjM2IiB0cmFuc2Zvcm09Im1hdHJpeCg2LjEyMzIzNGUtMTcgLTEgMSA2LjEyMzIzNGUtMTcgMTI1LjUgMjAzLjUpIiB3aWR0aD0iMjEiIGhlaWdodD0iNiIvPjxyZWN0IHg9IjE4NiIgeT0iMzYiIHRyYW5zZm9ybT0ibWF0cml4KDYuMTIzMjM0ZS0xNyAtMSAxIDYuMTIzMjM0ZS0xNyAxNTUuNSAyMzMuNSkiIHdpZHRoPSIxNyIgaGVpZ2h0PSI2Ii8+PHBhdGggZD0iTTE3My41LDczLjVoMTJjMCwwLDAtNSwwLThzLTItNS02LTVzLTYsMi02LDVDMTczLjUsNjYuNSwxNzMuNSw3My41LDE3My41LDczLjV6Ii8+PC9nPjxnIGlkPSJUZXh0Ij48Zz48cGF0aCBjbGFzcz0ic3QzIiBkPSJNMjIwLjEyOCw2Ni4wOWMwLTAuMzg3LDAuMDc1LTAuNjUyLDAuMjI4LTAuNzk2YzAuMTUtMC4xNDQsMC40NDYtMC4yMTUsMC44ODYtMC4yMTVoMi40OWMwLjQzNywwLDAuNzI5LDAuMDcxLDAuODgyLDAuMjE1YzAuMTUsMC4xNDQsMC4yMjcsMC40MDksMC4yMjcsMC43OTZ2MC4zMjJjMCwwLjI1NC0wLjA0MSwwLjQ1MS0wLjEyMiwwLjU5MXMtMC4yNTQsMC4yOTMtMC41MTgsMC40NTlsLTMuMzQsMi4wN2gzLjM4OXYtMC45ODFsMC44MiwwLjI2OXYwLjQxYzAsMC4zODgtMC4wNzcsMC42NTItMC4yMjksMC43OTZzLTAuNDQ5LDAuMjE1LTAuODg5LDAuMjE1aC00LjA2M3YtMC4zMjJjMC0wLjIzNywwLjA0Ny0wLjQxOSwwLjEzOS0wLjU0NWMwLjA5NC0wLjEyNSwwLjI0Ny0wLjI1NiwwLjQ2Mi0wLjM5M2wzLjUwMS0yLjIwMnYtMS4wMDZoLTMuMDQydjEuMjA2bC0wLjgyLTAuMjJWNjYuMDl6Ii8+PC9nPjxnPjxwYXRoIGNsYXNzPSJzdDMiIGQ9Ik01MS41MTEsNzAuMjR2LTQuMzUyaC0xLjEyM3YtMC41MThsMS45MTQtMC4zMzJ2NS4yMDFINTEuNTExeiIvPjwvZz48Zz48cGF0aCBjbGFzcz0ic3QzIiBkPSJNMTE2LjMwNCw3LjgwNWgtMy4yMjF2My4zNjVoMy4yMjF2LTEuMTY0bDAuNzc4LDAuMTYydjAuNTVjMCwwLjQyOC0wLjA3NSwwLjcxOC0wLjIyNCwwLjg3cy0wLjQzNSwwLjIyOS0wLjg1NywwLjIyOWgtMi42MDJjLTAuNDIyLDAtMC43MDktMC4wNzctMC44NjEtMC4yM2MtMC4xNTItMC4xNTQtMC4yMjktMC40NDMtMC4yMjktMC44NjhWOC4yN2MwLTAuNDI0LDAuMDc2LTAuNzE0LDAuMjI5LTAuODY3YzAuMTUyLTAuMTU0LDAuNDM5LTAuMjMsMC44NjEtMC4yM0gxMTZjMC40MjIsMCwwLjcwOCwwLjA3NiwwLjg1NywwLjIyOXMwLjIyNCwwLjQ0MiwwLjIyNCwwLjg2OXYwLjQzOWwtMC43NzgsMC4xNDZWNy44MDV6Ii8+PHBhdGggY2xhc3M9InN0MyIgZD0iTTExNy4yNTksOC4yN2MwLTAuNDIyLDAuMDc1LTAuNzEsMC4yMjctMC44NjVjMC4xNS0wLjE1NSwwLjQzOC0wLjIzMiwwLjg2My0wLjIzMmgzLjIxMmMwLjQxOSwwLDAuNzA0LDAuMDc2LDAuODU1LDAuMjNjMC4xNSwwLjE1MywwLjIyNiwwLjQ0MywwLjIyNiwwLjg2N3YyLjQ0OGMwLDAuNDI4LTAuMDc2LDAuNzE4LTAuMjI2LDAuODdjLTAuMTUxLDAuMTUyLTAuNDM2LDAuMjI5LTAuODU1LDAuMjI5aC0zLjIxMmMtMC40MjUsMC0wLjcxMy0wLjA3Ny0wLjg2My0wLjIzMmMtMC4xNTEtMC4xNTUtMC4yMjctMC40NDQtMC4yMjctMC44NjZWOC4yN3ogTTExOC4wMzMsMTEuMTdoMy44NDVWNy44MDVoLTMuODQ1VjExLjE3eiIvPjxwYXRoIGNsYXNzPSJzdDMiIGQ9Ik0xMjMuMTk4LDExLjgxNlY3LjE3MmgwLjQ4OGwzLjQ3NiwzLjEwNmMwLjA3OSwwLjA3LDAuMTYzLDAuMTU1LDAuMjUzLDAuMjU1YzAuMDg5LDAuMSwwLjE4MSwwLjIxLDAuMjc0LDAuMzNjLTAuMDIzLTAuMTUtMC4wNDEtMC4zMDYtMC4wNTMtMC40NjljLTAuMDEyLTAuMTYyLTAuMDE4LTAuMzg3LTAuMDE4LTAuNjc0VjcuMTcyaDAuNzEydjQuNjQ1aC0wLjQzNWwtMy41NjgtMy4yM2MtMC4wMTgtMC4wMTQtMC4wNDQtMC4wMzctMC4wNzktMC4wN2MtMC4xNzYtMC4xNTgtMC4zMDYtMC4zMDktMC4zOTEtMC40NTJjMC4wMTgsMC4xNDEsMC4wMzEsMC4yOTEsMC4wNCwwLjQ1YzAuMDA5LDAuMTYsMC4wMTMsMC4zNDksMC4wMTMsMC41NjR2Mi43MzhIMTIzLjE5OHoiLz48cGF0aCBjbGFzcz0ic3QzIiBkPSJNMTMwLjc0MSw3LjgwNXY0LjAxMmgtMC43NzNWNy44MDVoLTIuMTIzVjcuMTcyaDUuMDI3djAuNjMzSDEzMC43NDF6Ii8+PHBhdGggY2xhc3M9InN0MyIgZD0iTTEzMi4zNzcsMTEuODE2VjcuMTcyaDMuNzQ0YzAuMzQ5LDAsMC42LDAuMDcsMC43NTQsMC4yMTNjMC4xNTMsMC4xNDIsMC4yMywwLjM3MSwwLjIzLDAuNjg4djEuMDM3YzAsMC4zMTMtMC4wNzcsMC41NDEtMC4yMywwLjY4NGMtMC4xNTQsMC4xNDItMC40MDUsMC4yMTMtMC43NTQsMC4yMTNoLTAuNjgybDIuMTIzLDEuODExaC0xLjE1MWwtMS44OS0xLjgxMWgtMS4zNjd2MS44MTFIMTMyLjM3N3ogTTEzNS44MTgsNy43NzNoLTIuNjY0djEuNjMxaDIuNjY0YzAuMTkzLDAsMC4zMjQtMC4wMzUsMC4zOTUtMC4xMDVzMC4xMDUtMC4xOTMsMC4xMDUtMC4zNjlWOC4yNTJjMC0wLjE3Ni0wLjAzNS0wLjI5OS0wLjEwNy0wLjM3MUMxMzYuMTM5LDcuODEsMTM2LjAwOCw3Ljc3MywxMzUuODE4LDcuNzczeiIvPjxwYXRoIGNsYXNzPSJzdDMiIGQ9Ik0xMzcuMzc1LDguMjdjMC0wLjQyMiwwLjA3Ni0wLjcxLDAuMjI3LTAuODY1czAuNDM5LTAuMjMyLDAuODYzLTAuMjMyaDMuMjEzYzAuNDE5LDAsMC43MDMsMC4wNzYsMC44NTUsMC4yM2MwLjE1LDAuMTUzLDAuMjI2LDAuNDQzLDAuMjI2LDAuODY3djIuNDQ4YzAsMC40MjgtMC4wNzUsMC43MTgtMC4yMjYsMC44N2MtMC4xNTIsMC4xNTItMC40MzcsMC4yMjktMC44NTUsMC4yMjloLTMuMjEzYy0wLjQyNCwwLTAuNzEzLTAuMDc3LTAuODYzLTAuMjMycy0wLjIyNy0wLjQ0NC0wLjIyNy0wLjg2NlY4LjI3eiBNMTM4LjE0OCwxMS4xN2gzLjg0NlY3LjgwNWgtMy44NDZWMTEuMTd6Ii8+PHBhdGggY2xhc3M9InN0MyIgZD0iTTE0My4zMTQsMTEuODE2VjcuMTcyaDAuNzc3djMuOTk4aDMuNTE2djAuNjQ2SDE0My4zMTR6Ii8+PHBhdGggY2xhc3M9InN0MyIgZD0iTTE0Ny4zODksMTEuODE2VjcuMTcyaDAuNzc4djMuOTk4aDMuNTE2djAuNjQ2SDE0Ny4zODl6Ii8+PHBhdGggY2xhc3M9InN0MyIgZD0iTTE1MS40NjUsMTEuODE2VjcuMTcyaDQuNDczdjAuNjIzaC0zLjY5NXYxLjI5M2gyLjI1OXYwLjYxNWgtMi4yNTl2MS40NzdoMy43M3YwLjYzN0gxNTEuNDY1eiIvPjxwYXRoIGNsYXNzPSJzdDMiIGQ9Ik0xNTguNTc2LDcuMTcyYzAuNDI4LDAsMC43ODMsMC4wMjgsMS4wNjUsMC4wODVjMC4yODMsMC4wNTgsMC41MjIsMC4xNDksMC43MTksMC4yNzRjMC4yOTksMC4xOTcsMC41MzQsMC40NjcsMC43MDUsMC44MDljMC4xNzIsMC4zNDQsMC4yNTcsMC43MTksMC4yNTcsMS4xMjVjMCwwLjQzNS0wLjA4NCwwLjgyNC0wLjI1MiwxLjE3MmMtMC4xNjksMC4zNDctMC40MDUsMC42Mi0wLjcxLDAuODE5Yy0wLjE5LDAuMTIzLTAuNDI4LDAuMjE0LTAuNzEyLDAuMjcycy0wLjY0MiwwLjA4OC0xLjA3MiwwLjA4OGgtMi41NThWNy4xNzJIMTU4LjU3NnogTTE1OC40NjcsNy44MDVoLTEuNjd2My4zNjVoMS42N2MwLjc1MiwwLDEuMjg0LTAuMTMxLDEuNTk1LTAuMzk1czAuNDY2LTAuNywwLjQ2Ni0xLjMxMWMwLTAuNTg4LTAuMTU4LTEuMDEzLTAuNDc1LTEuMjcxQzE1OS43MzYsNy45MzQsMTU5LjIwNyw3LjgwNSwxNTguNDY3LDcuODA1eiIvPjwvZz48Zz48cGF0aCBjbGFzcz0ic3QzIiBkPSJNMjE2Ljc4LDMzLjYwNGwyLjQyOS00LjM4N2gwLjc5NmwyLjQ3Miw0LjM4N2gtMC44MTdsLTAuNTY4LTEuMDc5aC0zLjAxbC0wLjU2OCwxLjA3OUgyMTYuNzh6IE0yMTguMzkzLDMxLjk2NGgyLjM5NmwtMS4yLTIuMjQ1TDIxOC4zOTMsMzEuOTY0eiIvPjxwYXRoIGNsYXNzPSJzdDMiIGQ9Ik0yMjIuNDA3LDMzLjYwNHYtNC4zODdoMC43NDV2My43NzZoMy4zNjh2MC42MUgyMjIuNDA3eiIvPjxwYXRoIGNsYXNzPSJzdDMiIGQ9Ik0yMjYuNTI2LDMzLjYwNHYtNC4zODdoMC43NDV2My43NzZoMy4zNjh2MC42MUgyMjYuNTI2eiIvPjxwYXRoIGNsYXNzPSJzdDMiIGQ9Ik0yMzQuMDE5LDMwLjI1NGMwLTAuMzk4LDAuMDcyLTAuNjcxLDAuMjE3LTAuODE3czAuNDItMC4yMiwwLjgyNy0wLjIyaDMuMDc3YzAuNDAxLDAsMC42NzQsMC4wNzIsMC44MTgsMC4yMThjMC4xNDUsMC4xNDUsMC4yMTcsMC40MTgsMC4yMTcsMC44MTl2Mi4zMTJjMCwwLjQwNC0wLjA3MiwwLjY3OC0wLjIxNywwLjgyMnMtMC40MTcsMC4yMTYtMC44MTgsMC4yMTZoLTMuMDc3Yy0wLjQwNywwLTAuNjgzLTAuMDczLTAuODI3LTAuMjJjLTAuMTQ1LTAuMTQ3LTAuMjE3LTAuNDE5LTAuMjE3LTAuODE4VjMwLjI1NHogTTIzNC43NTksMzIuOTk0aDMuNjg0di0zLjE3OWgtMy42ODRWMzIuOTk0eiIvPjxwYXRoIGNsYXNzPSJzdDMiIGQ9Ik0yNDAuNjY4LDI5LjIxN3YzLjc3NmgzLjI0MXYtMy43NzZoMC43MzJ2My4zNDljMCwwLjQwNC0wLjA3MiwwLjY3OC0wLjIxNywwLjgyMnMtMC40MTcsMC4yMTYtMC44MTgsMC4yMTZoLTIuNjRjLTAuNDA0LDAtMC42NzktMC4wNzMtMC44MjUtMC4yMmMtMC4xNDYtMC4xNDctMC4yMTktMC40MTktMC4yMTktMC44MTh2LTMuMzQ5SDI0MC42Njh6Ii8+PHBhdGggY2xhc3M9InN0MyIgZD0iTTI0Ny4xNzUsMjkuODE1djMuNzg5aC0wLjc0MXYtMy43ODlIMjQ0LjR2LTAuNTk4aDQuODE1djAuNTk4SDI0Ny4xNzV6Ii8+PHBhdGggY2xhc3M9InN0MyIgZD0iTTI0OC45NTcsMzMuNjA0di00LjM4N2gzLjU4N2MwLjMzNCwwLDAuNTc0LDAuMDY3LDAuNzIyLDAuMjAxczAuMjIxLDAuMzUxLDAuMjIxLDAuNjQ5djAuOTc5YzAsMC4yOTYtMC4wNzMsMC41MTEtMC4yMjEsMC42NDZzLTAuMzg4LDAuMjAxLTAuNzIyLDAuMjAxaC0yLjg0MnYxLjcxSDI0OC45NTd6IE0yNTIuMjUzLDI5Ljc4NmgtMi41NTF2MS41MzFoMi41NTFjMC4xODMsMCwwLjMwOS0wLjAzNCwwLjM3Ny0wLjEwNGMwLjA2OS0wLjA2OSwwLjEwNC0wLjE4OCwwLjEwNC0wLjM1N3YtMC42MWMwLTAuMTY5LTAuMDM0LTAuMjg4LTAuMTA0LTAuMzU3QzI1Mi41NjIsMjkuODIsMjUyLjQzNiwyOS43ODYsMjUyLjI1MywyOS43ODZ6Ii8+PHBhdGggY2xhc3M9InN0MyIgZD0iTTI1NC41MzcsMjkuMjE3djMuNzc2aDMuMjQxdi0zLjc3NmgwLjczMnYzLjM0OWMwLDAuNDA0LTAuMDcyLDAuNjc4LTAuMjE3LDAuODIycy0wLjQxNywwLjIxNi0wLjgxOCwwLjIxNmgtMi42NGMtMC40MDQsMC0wLjY3OS0wLjA3My0wLjgyNS0wLjIyYy0wLjE0Ni0wLjE0Ny0wLjIxOS0wLjQxOS0wLjIxOS0wLjgxOHYtMy4zNDlIMjU0LjUzN3oiLz48cGF0aCBjbGFzcz0ic3QzIiBkPSJNMjYxLjA0NCwyOS44MTV2My43ODloLTAuNzQxdi0zLjc4OWgtMi4wMzN2LTAuNTk4aDQuODE1djAuNTk4SDI2MS4wNDR6Ii8+PHBhdGggY2xhc3M9InN0MyIgZD0iTTI2Ni42MjMsMjkuODE1aC0zLjE0OHYxLjIyNGgyLjgwNGMwLjM5NiwwLDAuNjY2LDAuMDcyLDAuODEzLDAuMjE2YzAuMTQ2LDAuMTQ0LDAuMjE5LDAuNDE3LDAuMjE5LDAuODE4djAuNDk0YzAsMC40MDQtMC4wNzEsMC42NzgtMC4yMTUsMC44MjJjLTAuMTQzLDAuMTQ0LTAuNDE1LDAuMjE2LTAuODE2LDAuMjE2aC0yLjU5OGMtMC40MDQsMC0wLjY3OS0wLjA3My0wLjgyNS0wLjIxOGMtMC4xNDYtMC4xNDYtMC4yMTktMC40MTgtMC4yMTktMC44MnYtMC4xMjFsMC42OS0wLjE1N3YwLjcwNWgzLjMxM3YtMS4zMTloLTIuNzk2Yy0wLjQwMywwLTAuNjc4LTAuMDczLTAuODItMC4yMThjLTAuMTQ0LTAuMTQ1LTAuMjE1LTAuNDE4LTAuMjE1LTAuODJ2LTAuMzgyYzAtMC40MDEsMC4wNzEtMC42NzQsMC4yMTUtMC44MTljMC4xNDMtMC4xNDYsMC40MTctMC4yMTgsMC44Mi0wLjIxOGgyLjM3YzAuMzk2LDAsMC42NjksMC4wNzEsMC44MTksMC4yMTNjMC4xNDksMC4xNDMsMC4yMjUsMC4zOTIsMC4yMjUsMC43NXYwLjA5MWwtMC42MzYsMC4xNzlWMjkuODE1eiIvPjwvZz48Zz48cGF0aCBjbGFzcz0ic3QzIiBkPSJNMjE1LjQ1OSwzOC42MDR2LTMuNjk4aC0wLjk4NXYtMC40MzlsMS42OC0wLjI4MnY0LjQySDIxNS40NTl6Ii8+PHBhdGggY2xhc3M9InN0MyIgZD0iTTIxOC43MzksMzUuMDc2YzAtMC4zMjksMC4wNjYtMC41NTUsMC4xOTktMC42NzZjMC4xMzMtMC4xMjIsMC4zOTMtMC4xODMsMC43NzgtMC4xODNoMi4xODVjMC4zODMsMCwwLjY0MSwwLjA2MSwwLjc3MywwLjE4M2MwLjEzMywwLjEyMiwwLjE5OSwwLjM0NywwLjE5OSwwLjY3NnYwLjI3NGMwLDAuMjE2LTAuMDM2LDAuMzgzLTAuMTA3LDAuNTAyYy0wLjA3MSwwLjExOS0wLjIyMywwLjI0OS0wLjQ1NCwwLjM5MWwtMi45MzEsMS43NmgyLjk3NHYtMC44MzRsMC43MiwwLjIyOHYwLjM0OWMwLDAuMzMtMC4wNjcsMC41NTUtMC4yMDEsMC42NzdjLTAuMTM1LDAuMTIyLTAuMzk1LDAuMTgzLTAuNzgsMC4xODNoLTMuNTY0VjM4LjMzYzAtMC4yMDIsMC4wNDEtMC4zNTYsMC4xMjItMC40NjNjMC4wODItMC4xMDYsMC4yMTctMC4yMTgsMC40MDUtMC4zMzRsMy4wNzItMS44NzJ2LTAuODU1aC0yLjY3djEuMDI1bC0wLjcyLTAuMTg3VjM1LjA3NnoiLz48cGF0aCBjbGFzcz0ic3QzIiBkPSJNMjIzLjMwNSwzNS4yNTRjMC0wLjQwMSwwLjA2Ny0wLjY3NCwwLjIwMy0wLjgxOWMwLjEzNi0wLjE0NiwwLjM5Mi0wLjIxOCwwLjc2OS0wLjIxOGgyLjg4YzAuMzc0LDAsMC42MjksMC4wNzIsMC43NjcsMC4yMThjMC4xMzcsMC4xNDUsMC4yMDUsMC40MTgsMC4yMDUsMC44MTl2Mi4zMTJjMCwwLjQwMS0wLjA2OCwwLjY3NC0wLjIwNSwwLjgyYy0wLjEzOCwwLjE0NS0wLjM5MywwLjIxOC0wLjc2NywwLjIxOGgtMi44OGMtMC4zNzcsMC0wLjYzMy0wLjA3Mi0wLjc2OS0wLjIxNnMtMC4yMDMtMC40MTgtMC4yMDMtMC44MjJWMzUuMjU0eiBNMjI0LjAzMiwzOC4wMDJoMy4zNjh2LTMuMTk2aC0zLjM2OFYzOC4wMDJ6Ii8+PHBhdGggY2xhc3M9InN0MyIgZD0iTTIzMC4yMjcsMzguNjA0bC0yLjQ3My00LjM4N2gwLjgxNGwyLjAwMSwzLjY1NmwxLjkxLTMuNjU2aDAuNzVsLTIuMzY5LDQuMzg3SDIzMC4yMjd6Ii8+PHBhdGggY2xhc3M9InN0MyIgZD0iTTIzNi44MDgsMzguNjA0di0zLjY5OGgtMC45ODV2LTAuNDM5bDEuNjgtMC4yODJ2NC40MkgyMzYuODA4eiIvPjxwYXRoIGNsYXNzPSJzdDMiIGQ9Ik0yNDAuMDg4LDM1LjA3NmMwLTAuMzI5LDAuMDY2LTAuNTU1LDAuMTk5LTAuNjc2YzAuMTMzLTAuMTIyLDAuMzkzLTAuMTgzLDAuNzc4LTAuMTgzaDIuMTg1YzAuMzgzLDAsMC42NDEsMC4wNjEsMC43NzMsMC4xODNjMC4xMzMsMC4xMjIsMC4xOTksMC4zNDcsMC4xOTksMC42NzZ2MC4yNzRjMCwwLjIxNi0wLjAzNiwwLjM4My0wLjEwNywwLjUwMmMtMC4wNzEsMC4xMTktMC4yMjMsMC4yNDktMC40NTQsMC4zOTFsLTIuOTMxLDEuNzZoMi45NzR2LTAuODM0bDAuNzIsMC4yMjh2MC4zNDljMCwwLjMzLTAuMDY3LDAuNTU1LTAuMjAxLDAuNjc3Yy0wLjEzNSwwLjEyMi0wLjM5NSwwLjE4My0wLjc4LDAuMTgzaC0zLjU2NFYzOC4zM2MwLTAuMjAyLDAuMDQxLTAuMzU2LDAuMTIyLTAuNDYzYzAuMDgyLTAuMTA2LDAuMjE3LTAuMjE4LDAuNDA1LTAuMzM0bDMuMDcyLTEuODcydi0wLjg1NWgtMi42N3YxLjAyNWwtMC43Mi0wLjE4N1YzNS4wNzZ6Ii8+PHBhdGggY2xhc3M9InN0MyIgZD0iTTI0NC4wNzUsMzguNjA0bDIuNDczLTQuMzg3aDAuODFsMi41MTUsNC4zODdoLTAuODMxbC0wLjU3OC0xLjA3OWgtMy4wNjNsLTAuNTc4LDEuMDc5SDI0NC4wNzV6IE0yNDUuNzE3LDM2Ljk2NGgyLjQzOGwtMS4yMjEtMi4yNDVMMjQ1LjcxNywzNi45NjR6Ii8+PHBhdGggY2xhc3M9InN0MyIgZD0iTTI1My4zMDUsMzQuODE1djMuNzg5aC0wLjc1NHYtMy43ODloLTIuMDY5di0wLjU5OGg0LjkwMXYwLjU5OEgyNTMuMzA1eiIvPjxwYXRoIGNsYXNzPSJzdDMiIGQ9Ik0yNTUuMDYsMzUuMjU0YzAtMC4zOTgsMC4wNzMtMC42NzEsMC4yMjEtMC44MTdjMC4xNDYtMC4xNDYsMC40MjgtMC4yMiwwLjg0Mi0wLjIyaDMuMTMyYzAuNDA4LDAsMC42ODYsMC4wNzIsMC44MzMsMC4yMThjMC4xNDcsMC4xNDUsMC4yMjEsMC40MTgsMC4yMjEsMC44MTl2Mi4zMTJjMCwwLjQwNC0wLjA3MywwLjY3OC0wLjIyMSwwLjgyMnMtMC40MjUsMC4yMTYtMC44MzMsMC4yMTZoLTMuMTMyYy0wLjQxNCwwLTAuNjk1LTAuMDczLTAuODQyLTAuMjJjLTAuMTQ3LTAuMTQ3LTAuMjIxLTAuNDE5LTAuMjIxLTAuODE4VjM1LjI1NHogTTI1NS44MTMsMzcuOTk0aDMuNzQ4di0zLjE3OWgtMy43NDhWMzcuOTk0eiIvPjxwYXRoIGNsYXNzPSJzdDMiIGQ9Ik0yNjIuODI0LDM0LjgxNXYzLjc4OWgtMC43NTR2LTMuNzg5aC0yLjA2OXYtMC41OThoNC45MDF2MC41OThIMjYyLjgyNHoiLz48cGF0aCBjbGFzcz0ic3QzIiBkPSJNMjYzLjExNywzOC42MDRsMi40NzMtNC4zODdoMC44MWwyLjUxNSw0LjM4N2gtMC44MzFsLTAuNTc4LTEuMDc5aC0zLjA2M2wtMC41NzgsMS4wNzlIMjYzLjExN3ogTTI2NC43NTksMzYuOTY0aDIuNDM4bC0xLjIyMS0yLjI0NUwyNjQuNzU5LDM2Ljk2NHoiLz48cGF0aCBjbGFzcz0ic3QzIiBkPSJNMjY4Ljg0NCwzOC42MDR2LTQuMzg3aDAuNzU5djMuNzc2aDMuNDI3djAuNjFIMjY4Ljg0NHoiLz48L2c+PC9nPjwvc3ZnPg==",
+            Position = { 48,18 }, -- { 3 ,18 }
+            Size = { 550,184 }
+        },
+        -- Labels
+        {
+            Type          = "Label",
+            Text          = "IP",
+            TextSize      = 20,
+            IsBold        = true,
+            Color         = { 105, 105, 105 },
+            StrokeColor   = { 105, 105, 105 },
+            StrokeWidth   = 1,
+            Position     = { 38,  252 },
+            Size         = { 156, 32 }
+        },
+        {
+            Type          = "Label",
+            Text          = "Port",
+            TextSize      = 20,
+            IsBold        = true,
+            Color         = { 105, 105, 105 },
+            StrokeColor   = { 105, 105, 105 },
+            StrokeWidth   = 1,
+            Position     = { 38,  284 },
+            Size         = { 156, 32 }
+        },
+        {
+            Type          = "Label",
+            Text          = "Username",
+            TextSize      = 20,
+            IsBold        = true,
+            Color         = { 105, 105, 105 },
+            StrokeColor   = { 105, 105, 105 },
+            StrokeWidth   = 1,
+            Position     = { 38,  316 },
+            Size         = { 156, 32 }
+        },
+        {
+            Type          = "Label",
+            Text          = "Password",
+            TextSize      = 20,
+            IsBold        = true,
+            Color         = { 105, 105, 105 },
+            StrokeColor   = { 105, 105, 105 },
+            StrokeWidth   = 1,
+            Position     = { 38,  348 },
+            Size         = { 156, 32 }
+        }
+    }
+
+    return layout, graphics
+end
+
+if Controls then
+    -- runtime lua code goes here:
+    --[[
+
+    sequence of instructions upon connection:
+    check for successful connection reply
+    request state of outlets
+    check which outlets are on or off
+    toggle buttons and LEDs accordingly (real feedback)
+    whenever user toggles/untoggles buttons, check for replies to provide feedback as well
+
+    parse error messages as well for better usability
+
+    cmd table: (only most useful)
+    Command           Byte Value     Valid Sub Command
+    Nack              0x10           Response
+    Ping,Pong         0x01           Set, Response
+    Login             0x02           Set, Response
+    Power Outlet      0x20           Set, Get, Response, Status Change
+
+    subcmd table:
+    Sub-Command       Byte Value
+    Set               0x01
+    Get               0x02
+    Response          0x10
+    Status Change     0x12
+    Log Alert         0x30
+
+    <header> <len>  <addr> <cmd>  <subcmd>  "u"   "s"   "e"   "r"   "|"   "P"  "a"   "s"   "s"   "w"   "o"   "r"   "d"   <checksum>  <tail>
+      0xFE,   0x10,  0x00,  0x02,  0x01,     0x75, 0x73, 0x65, 0x72, 0x7C, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6F, 0x72, 0x64, 0x3F,       0xFF
+    ]]--
+
+    -- sending messages
+    local one_on           = { 0xFE, 0x09, 0x00, 0x20, 0x01, 0x01, 0x01, 0x30, 0x30, 0x30, 0x30, 0x6A, 0xFF } -- outlet 1 on
+    local one_off          = { 0xFE, 0x09, 0x00, 0x20, 0x01, 0x01, 0x00, 0x30, 0x30, 0x30, 0x30, 0x69, 0xFF } -- outlet 1 off
+    local two_on           = { 0xFE, 0x09, 0x00, 0x20, 0x01, 0x02, 0x01, 0x30, 0x30, 0x30, 0x30, 0x6B, 0xFF } -- outlet 2 on
+    local two_off          = { 0xFE, 0x09, 0x00, 0x20, 0x01, 0x02, 0x00, 0x30, 0x30, 0x30, 0x30, 0x6A, 0xFF } -- outlet 2 off
+    local pong             = { 0xFE, 0x03, 0x00, 0x01, 0x10, 0x12, 0xFF }                                     -- qsys sends a pong
+    local get_one          = { 0xFE, 0x04, 0x00, 0x20, 0x02, 0x01, 0x25, 0xFF }                               -- get status of outlet 1
+    local get_two          = { 0xFE, 0x04, 0x00, 0x20, 0x02, 0x02, 0x26, 0xFF }                               -- get status of outlet 2
+  
+    -- receiving messages  
+    local login_accepted   = { 0xFE, 0x04, 0x00, 0x02, 0x10, 0x01, 0x15, 0xFF } -- login accepted
+    local ping             = { 0xFE, 0x03, 0x00, 0x01, 0x01, 0x03, 0xFF }       -- rlnk sent a ping
+
+    -- error messages
+    local err_bad_checksum = { 0xFE, 0x04, 0x00, 0x10, 0x01, 0x13, 0xFF } -- bad checksum
+    local err_bad_length   = { 0xFE, 0x04, 0x00, 0x10, 0x02, 0x14, 0xFF } -- bad length
+    local err_escaped      = { 0xFE, 0x04, 0x00, 0x10, 0x03, 0x15, 0xFF } -- escaped error
+    local err_invalid_cmd  = { 0xFE, 0x04, 0x00, 0x10, 0x04, 0x16, 0xFF } -- invalid command
+    local err_invalid_scmd = { 0xFE, 0x04, 0x00, 0x10, 0x05, 0x17, 0xFF } -- invalid sub command
+    local err_data_bytes_n = { 0xFE, 0x04, 0x00, 0x10, 0x06, 0x18, 0xFF } -- invalid quantity data bytes
+    local err_data_bytes_v = { 0xFE, 0x04, 0x00, 0x10, 0x07, 0x19, 0xFF } -- invalid data byte values
+    local err_cr_denied    = { 0xFE, 0x04, 0x00, 0x10, 0x08, 0x1A, 0xFF } -- access denied (credentials)
+    local err_unknown      = { 0xFE, 0x04, 0x00, 0x10, 0x10, 0x1B, 0xFF } -- unknown
+    local err_epo_denied   = { 0xFE, 0x04, 0x00, 0x10, 0x11, 0x1C, 0xFF } -- access denied (EPO)
+
+    -- once we get the initial status, keep track of what happens to the outlets
+    -- QSYS end by parsing response messages when off and on payloads are sent
+
+    local function stringfromBytes(t)
+        local bytearr = {}
+            for _, v in ipairs(t) do
+                local utf8byte = v < 0 and (0xff + v + 1) or v
+                table.insert(bytearr, string.char(utf8byte))
+            end
+        return table.concat(bytearr)
+    end
+
+    local function hexStringFromArray(a)
+        local a_table = {}
+        for i=1, #a do
+            table.insert(a_table, tostring(string.format("%02X", a[i])))
+        end
+        -- concatenate
+        local a_string = table.concat(a_table, " ")
+        return a_string
+    end
+
+    -- start the socket
+    socket                  = TcpSocket.New();
+    socket.ReadTimeout      = 0;
+    socket.WriteTimeout     = 0;
+    socket.ReconnectTimeout = 5;
+
+    socket.Connected = function (socket)
+        print("TCP socket is connected")
+        Controls.connect.Color  = "green"
+        Controls.connect.Legend = "Connected"
+    end
+    socket.Reconnect = function(socket)
+        print("TCP socket is reconnecting")
+        Controls.connect.Color  = "orange"
+        Controls.connect.Legend = "Reconnecting"
+        Controls.connect.Boolean = false
+    end
+    socket.Closed = function(socket)
+        print("TCP socket was closed by remote")
+        Controls.connect.Color  = "red"
+        Controls.connect.Legend = "Disconnected"
+        Controls.connect.Boolean = false
+    end
+    socket.Error = function(socket,err)
+        print("TCP socket had an error: ", err)
+    end
+    socket.Timeout = function(socket, err)
+        print("TCP socket timed out", err)
+    end
+    socket.Data = function(socket)
+        local data = socket:Read(socket.BufferLength)
+        local bytes = {}
+        local byteString = {}
+
+        for i=1, data:len() do
+            table.insert(bytes, data:byte(i))
+            table.insert(byteString, tostring(string.format("%02X", data:byte(i))))
+        end
+
+        local dataString = table.concat(bytes, " ") -- data received
+
+        -- check received data against the following:
+        local pingString  = table.concat(ping, " ")           -- ping received
+        local loginString = table.concat(login_accepted, " ") -- login success
+
+        -- successfully turned outlet 1 on
+        -- successfully turned outlet 1 off
+        -- successfully turned outlet 2 on
+        -- successfully turned outlet 2 off
+        
+        -- parse error messages accordingly
+
+
+        if dataString == loginString then
+            print("[Successfully logged in]")
+
+            -- request state of the outlets
+            --socket:Write(stringfromBytes(get_one))
+            --socket:Write(stringfromBytes(get_two))
+
+            -- set the front end accordingly
+            -- Controls.Outlet1.Boolean = false
+            -- Controls.Outlet2.Boolean = false
+
+        elseif dataString == pingString then
+            local pongString = hexStringFromArray(pong)
+
+            print("[Received a ping] "..table.concat(byteString, " "))
+            print("[Sending a pong] "..pongString)
+            socket:Write(stringfromBytes(pong))
+        else
+            print("[Data Received] "..table.concat(byteString, " "))
+        end
+    end
+
+    local function calculateChecksum(byteArray)
+        local sum = 0
+        for i=1, #byteArray do
+            sum = sum + byteArray[i] 
+        end
+        sum = sum & 0x07F -- bitwise "and" to keep least significant 7 bits
+        return sum
+    end
+
+    -- will only change the byteArray if necessary
+    local function escapeCharacters(byteArray)
+        flag = 0           -- 0 meaning no need to escape array
+        local indexes = {} -- store offending characters' indexes here
+
+        for i=1, #byteArray do
+            if byteArray[i] == 0xFE or byteArray[i] == 0xFD or byteArray[i] == 0xFF then
+                flag = 1
+                table.insert(indexes,i)
+            end
+        end
+
+        if flag == 1 then -- "username|password" sequence must be escaped
+
+            -- every time an escape byte is added, the length increases
+            -- +1. here we correct indexes' values for offsets
+            for i=1, #indexes do
+                local incr = (i - 1)
+                indexes[i] = indexes[i] + incr
+            end
+
+            -- add escape characters to corrected indexes
+            for i=1, #indexes do
+                table.insert(byteArray, indexes[i], 0xFD)
+            end
+        end
+        return byteArray
+    end
+
+    local function invertHex(hex) -- bitwise inverse of a hexadecimal value
+        invHex = ~(hex) -- invert the hexadecimal value
+        invHex = invHex & 0xFF -- bitwise "and" to keep only the most significant bits
+        return invHex
+    end
+
+    -- connect function
+    local function connectDevice(arg)
+        -- local variables for address and port
+        local address  = ""
+        local port     = ""
+        local username = ""
+        local password = ""
+
+        local valid = 1 -- assume user filed fields correctly
+
+        sendData = 'Hello\x0d\x0a'
+
+        if arg.Value == 1.0 then -- toggled
+            print("toggled")
+
+            -- catch values
+            address  = Controls.address.String
+            port     = tonumber(Controls.port.String)
+            username = Controls.username.String
+            password = Controls.password.String
+
+            -- check if all fields are filled
+            if address == "" then
+                print("address field is empty")
+                valid = 0
+            elseif port == "" then
+                print("port field is empty")
+                valid = 0
+            elseif username == "" then
+                print("username field is empty")
+                valid = 0
+            elseif password == "" then
+                print("password field is empty")
+                valid = 0 
+            end
+
+            if valid == 1 then -- user filled all fields
+                print("attempting connection to: "..address.." port: "..port)
+                socket:Connect(address, port) -- connect
+
+                -- prepare login message
+                local loginMessage = {}
+                local characterArray = {}
+                local checksumData = {}
+
+                -- pass username to characterArray
+                for i = 1, #username do
+                    local c = username:sub(i,i)
+                    local asciiChar = string.byte(c)
+
+                    table.insert(characterArray, asciiChar)
+                end
+
+                -- pass separator "|" to characterArray
+                table.insert(characterArray, string.byte("|"))
+
+                -- pass password to characterArray
+                for i = 1, #password do
+                    local c = password:sub(i,i)
+                    local asciiChar = string.byte(c)
+
+                    table.insert(characterArray, asciiChar)
+                end
+
+                -- calculate data length
+                local dataLength = #characterArray + 3 -- charArray bytes + 1b[addr] + 1b[cmd] + 1b[subcmd]
+
+                -- load partials (header, length, addr, cmd and subcmd) to checksumData
+                table.insert(checksumData, 0xFE)       -- [header]   0xFE header_default
+                table.insert(checksumData, dataLength) -- [len]      0x?? len of data envelope
+                table.insert(checksumData, 0x00)       -- [addr]     0x00 addr_default
+                table.insert(checksumData, 0x02)       -- [cmd]      0x02 login
+                table.insert(checksumData, 0x01)       -- [subcmd]   0x01 set (setting login)
+
+                -- copy checksumData partials to loginMessage array
+                for i=1, #checksumData do
+                    table.insert(loginMessage, checksumData[i])
+                end
+
+                -- sanitize the characterArray and pass it to loginMessage
+                local sanitizedCharArray = escapeCharacters(characterArray)
+                for i=1, #sanitizedCharArray do
+                    table.insert(loginMessage, sanitizedCharArray[i])
+                end
+                
+                -- pass unsanitized (raw) character array to checksumData array
+                for i=1, #characterArray do
+                    table.insert(checksumData, characterArray[i])
+                end
+
+                -- calculate checksum
+                local checksum   = calculateChecksum(checksumData)
+                -- print("[checksum] "..checksum)
+
+                -- pass checksum to loginMessage
+                table.insert(loginMessage, checksum)   -- [checksum] 
+
+                -- pass tail to loginMessage
+                table.insert(loginMessage, 0xFF)       -- [tail]     0xff tail_default
+
+                -- print for debugging (sanity check)
+                --print("checkpoint: ")
+                --print("[characterArray] "..table.concat(characterArray, " "))
+                --print("[dataLength] "..dataLength)
+                --print("[checksumData] "..table.concat(checksumData, " "))
+                --print("[sanitized] "..table.concat(sanitizedCharArray, " "))
+                print("[login] login request: "..table.concat(loginMessage, " "))
+
+                -- delete checksumData from memory, leave it for garbage collection
+                local login = stringfromBytes(loginMessage)
+                socket:Write(login) -- send login data
+            end
+        else -- untoggled
+            print("Disconnect")
+            Controls.led_1.Boolean = false
+            Controls.led_2.Boolean = false
+
+            Controls.connect.Color = "red"
+            Controls.connect.Legend = "Disconnected"
+            Controls.connect.Boolean = false
+            socket:Disconnect()
+        end
+    end
+
+    local function toggleOutlet1(arg)
+        if arg.Value == 1.0 then
+            local hex = hexStringFromArray(one_on)
+
+            print("[outlet 1] toggle on: "..hex)
+            Controls.led_1.Boolean = true
+            socket:Write(stringfromBytes(one_on))
+        else
+            local hex = hexStringFromArray(one_off)
+
+            print("[outlet 1] toggle off: "..hex)
+            Controls.led_1.Boolean = false
+            socket:Write(stringfromBytes(one_off))
+        end
+    end
+    local function toggleOutlet2(arg)
+        if arg.Value == 1.0 then
+            local hex = hexStringFromArray(two_on)
+
+            print("[outlet 2] toggle on: "..hex)
+            Controls.led_2.Boolean = true
+            socket:Write(stringfromBytes(two_on))
+        else
+            local hex = hexStringFromArray(two_off)
+
+            print("[outlet 2] toggle off: "..hex)
+            Controls.led_2.Boolean = false
+            socket:Write(stringfromBytes(two_off))
+        end
+    end
+
+    -- when user presses connect:
+    Controls.connect.EventHandler = connectDevice
+    Controls.Outlet1.EventHandler = toggleOutlet1
+    Controls.Outlet2.EventHandler = toggleOutlet2
+end
+
+print("Welcome to the Middle Atlantic RLNK-215 Plugin for QSYS")
+
+--[[
+
+Protocol Message Structure
+<header><length><data envelope><checksum><tail>
+
+-- login:
+fe 10 00 0 5 73 65 72 7c 70 61 73 73 77 6f 72 64 3f ff 
+fe 09 00 20 01 01 01 30 30 30 30 6a ff 
+
+checksum: <header> + <length> + <data envelope>
+7 least significant bits, 8th bit: 0
+
+
+ CMD    HEX                                                           DEC                                           
+[login] FE 10 00 02 01 75 73 65 72 7C 70 61 73 73 77 6F 72 64 3F FF | 254, 16, 0, 2, 1, 117, 115, 101, 114, 124, 112, 97, 115, 115, 119, 111, 114, 100, 63, 255 
+[1:ON ] FE 09 00 20 01 01 01 30 30 30 30 6A FF                      | 254, 9, 0, 32, 1, 1, 1, 48, 48, 48, 48, 106, 255
+[2:ON ] FE 09 00 20 01 01 01 30 30 30 30 6B FF                      | 254, 9, 0, 32, 1, 1, 1, 48, 48, 48, 48, 107, 255
+[1:OFF] FE 09 00 20 01 01 00 30 30 30 30 69 FF                      | 254, 9, 0, 32, 1, 1, 0, 48, 48, 48, 48, 105, 255
+[2:OFF] FE 09 00 20 01 02 00 30 30 30 30 6a FF                      | 254, 9, 0, 32, 1, 2, 0, 48, 48, 48, 48, 106, 255
+
+<0xFE> 10 00 02 01 75 73 65 72 7C 70 61 73 73 77 6F 72 64 3F <0xFF>
+
+example message:
+<header> <len> <addr> <cmd> <subcmd>  "U"  "s"  "e"  "r"  "N"  "a"  "m"  "e"  "|"  "P"  "a"  "s"  "s"  "w"  "o"  "r"  "d"    <checksum> <tail>
+  0xfe    0x14  0x00   0x02   0x01     0x55 0x73 0x65 0x72 0x4e 0x61 0x6d 0x65 0x7c 0x50 0x61 0x73 0x73 0x77 0x65 0x72 0x64     0x??     0xff
+
+if any message contains 0xFE, 0xFF, or 0xFD  it must be escaped in order to prevent early message termination:
+<0xFF>       (unescaped)
+<0xFD><0x00> (escaped) prepended protected byte with 0xFD and inverted the protected bytes' bits
+
+bit.bnot(x)           -- bitwise not of x
+
+
+escape bytes must be ignored from checksum and length calculation.
+
+command:  byte:  subcmd:
+Login     0x02   Set, Response
+
+Sub command: byte:
+Set          0x01
+Status Delta 0x12
+
+<header> <len>  <addr> <cmd>  <subcmd>  "u"   "s"   "e"   "r"   "|"   "70"  "a"   "s"   "s"   "w"   "o"   "r"   "d"   <checksum>  <tail>
+ 0xFE,   0x10,  0x00,  0x02,  0x01,     0x75, 0x73, 0x65, 0x72, 0x7C, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6F, 0x72, 0x64, 0x3F,       0xFF
+
+
+
+inverting the hexadecimal value and snipping leading hex values in Lua
+
+local xValues = {0xFF, 0x01, 0x6a, 0x72, 0xFE, 0x01}
+local inv = {}
+
+for i=1, #xValues do
+    inv[i] = ~(xValues[i])
+    inv[i] = inv[i] & 0xFF -- bitwise 'and' to keep only the most significant bits
+    
+    xstring = string.format("%02X", xValues[i])
+    istring = string.format("%02X", inv[i])
+    
+    print("hex: "..xstring.." >\t"..istring)
+end
+
+
+while loop for socket.data:
+
+local line = socket:ReadLine(TcpSocket.EOL.Any)
+while(line~=nil) do
+    print("TCP socket has data: ", line)
+    line = socket:ReadLine(TcpSocket.EOL.Any)
+end
+
+]]--
+
+

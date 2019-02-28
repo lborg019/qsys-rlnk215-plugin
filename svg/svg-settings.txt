@@ -1,0 +1,20 @@
+Illustrator: 'Save as'
+Type: .SVG
+
+SVG Profile: SVG 1.1
+
+Fonts
+Type: SVG
+Subsetting: None (Use System Fonts)
+
+Options
+Image Location: Embed
+
+Advanced Options
+CSS Properties: Style Elements
+Decimal Places: 3 (recommended)
+Encoding: Unicode (UTF-8)
+
+- Output fewer <tspan> Elements
+- Use <textPath> element for Text on Path
+- Responsive
