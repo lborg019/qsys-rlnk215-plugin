@@ -1,0 +1,13 @@
+When accessing the RLNK's web app, default username and passwords
+
+Administrator:
+username: admin
+password: admin
+
+User:
+username: user
+password: password
+
+Control System:
+username: user
+password: password

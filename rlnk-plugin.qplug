@@ -1,15 +1,26 @@
 --[[
-Author: Lukas Borges
-Company: Pro Sound Inc.
+  ___________   ___________   ___________
+ |   ______  | |   ______  | |   _____   |
+ |  |______| | |  |   ___| | |  |     |  |
+ |   ________| |  |   \  __| |  |_____|  |
+ |__|          |__|    \___\ |___________|
+
+               SOUND & VIDEO
+         It's all about performance.
+
+  Written with 💖 by:
+  Lukas Borges
+  Pro Sound & Video
+  lborges@prosound.net
 ]]--
 
 PluginInfo = 
 {
-    Name = "RLNK",
-    Version = "5.3",
+    Name = "Middle Atlantic RLNK-215",
+    Version = "1.0",
     Id = "a7f8c50f-7235-4307-bcc9-2a3a91a7df32",
-    Description = "RLNK-215 Plugin for QSYS",
-    ShowDebug = true
+    Description = "Middle Atlantic RLNK-215 Plugin for QSYS",
+    ShowDebug = false
 }
 
 function GetPrettyName(props)
@@ -60,6 +71,12 @@ function GetControls(props)
             Name        = "password",
             ControlType = "Text",
             PinStyle    = "Input",
+            UserPin     = true
+        },
+        {
+            Name        = "access",
+            ControlType = "Text",
+            PinStyle    = "Output",
             UserPin     = true
         },
         {
@@ -139,6 +156,15 @@ function GetControlLayout(props)
         Position     = { 198,  348 },
         Size         = { 256, 32 }
     }
+    layout.access = 
+    {
+        IsBold       = true,
+        TextFontSize = 20,
+        Color        = { 105, 105, 105 },
+        Position     = { 198, 380 },
+        Size         = { 256, 32 },
+        IsReadOnly   = true
+    }
     layout.connect = 
     {
         Legend       = "Connect",
@@ -216,8 +242,8 @@ function GetControlLayout(props)
             Color         = { 105, 105, 105 },
             StrokeColor   = { 105, 105, 105 },
             StrokeWidth   = 1,
-            Position     = { 38,  252 },
-            Size         = { 156, 32 }
+            Size          = { 156, 32 },
+            Position      = { 38,  252 }
         },
         {
             Type          = "Label",
@@ -227,8 +253,8 @@ function GetControlLayout(props)
             Color         = { 105, 105, 105 },
             StrokeColor   = { 105, 105, 105 },
             StrokeWidth   = 1,
-            Position     = { 38,  284 },
-            Size         = { 156, 32 }
+            Size          = { 156, 32 },
+            Position      = { 38,  284 }
         },
         {
             Type          = "Label",
@@ -238,8 +264,8 @@ function GetControlLayout(props)
             Color         = { 105, 105, 105 },
             StrokeColor   = { 105, 105, 105 },
             StrokeWidth   = 1,
-            Position     = { 38,  316 },
-            Size         = { 156, 32 }
+            Size          = { 156, 32 },
+            Position      = { 38,  316 }
         },
         {
             Type          = "Label",
@@ -249,8 +275,19 @@ function GetControlLayout(props)
             Color         = { 105, 105, 105 },
             StrokeColor   = { 105, 105, 105 },
             StrokeWidth   = 1,
-            Position     = { 38,  348 },
-            Size         = { 156, 32 }
+            Size          = { 156, 32 },
+            Position      = { 38,  348 },
+        },
+        {
+            Type          = "Label",
+            Text          = "Access",
+            TextSize      = 20,
+            IsBold        = true,
+            Color         = { 105, 105, 105 },
+            StrokeColor   = { 105, 105, 105 },
+            StrokeWidth   = 1,
+            Size          = { 156, 32 },
+            Position      = { 38, 380 }
         }
     }
 
@@ -299,8 +336,13 @@ if Controls then
     local get_two          = { 0xFE, 0x04, 0x00, 0x20, 0x02, 0x02, 0x26, 0xFF }                               -- get status of outlet 2
   
     -- receiving messages  
-    local login_accepted   = { 0xFE, 0x04, 0x00, 0x02, 0x10, 0x01, 0x15, 0xFF } -- login accepted
-    local ping             = { 0xFE, 0x03, 0x00, 0x01, 0x01, 0x03, 0xFF }       -- rlnk sent a ping
+    local login_accepted   = { 0xFE, 0x04, 0x00, 0x02, 0x10, 0x01, 0x15, 0xFF }                               -- login accepted
+    local login_rejected     = { 0xFE, 0x04, 0x00, 0x02, 0x10, 0x00, 0x14, 0xFF }                               -- login denied
+    local ping             = { 0xFE, 0x03, 0x00, 0x01, 0x01, 0x03, 0xFF }                                     -- rlnk sent a ping
+    local one_status_on    = { 0xFE, 0x09, 0x00, 0x20, 0x10, 0x01, 0x01, 0x30, 0x30, 0x30, 0x33, 0x7C, 0xFF } -- outlet 1 is on
+    local one_status_off   = { 0xFE, 0x09, 0x00, 0x20, 0x10, 0x01, 0x00, 0x30, 0x30, 0x30, 0x33, 0x7B, 0xFF } -- outlet 1 is off
+    local two_status_on    = { 0xFE, 0x09, 0x00, 0x20, 0x10, 0x02, 0x01, 0x30, 0x30, 0x30, 0x33, 0x7D, 0xFF } -- outlet 2 is on
+    local two_status_off   = { 0xFE, 0x09, 0x00, 0x20, 0x10, 0x02, 0x00, 0x30, 0x30, 0x30, 0x33, 0x7C, 0xFF } -- outlet 2 is off
 
     -- error messages
     local err_bad_checksum = { 0xFE, 0x04, 0x00, 0x10, 0x01, 0x13, 0xFF } -- bad checksum
@@ -355,9 +397,18 @@ if Controls then
     end
     socket.Closed = function(socket)
         print("TCP socket was closed by remote")
+        -- set the button
         Controls.connect.Color  = "red"
         Controls.connect.Legend = "Disconnected"
         Controls.connect.Boolean = false
+
+        -- reset LEDs
+        Controls.led_1.Boolean = false
+        Controls.led_2.Boolean = false
+
+        -- reset access box to defaults
+        Controls.access.String = ""
+        Controls.access.Color  = "gray"
     end
     socket.Error = function(socket,err)
         print("TCP socket had an error: ", err)
@@ -378,27 +429,27 @@ if Controls then
         local dataString = table.concat(bytes, " ") -- data received
 
         -- check received data against the following:
-        local pingString  = table.concat(ping, " ")           -- ping received
-        local loginString = table.concat(login_accepted, " ") -- login success
-
-        -- successfully turned outlet 1 on
-        -- successfully turned outlet 1 off
-        -- successfully turned outlet 2 on
-        -- successfully turned outlet 2 off
+        local pingString         = table.concat(ping, " ")           -- ping received
+        local loginString        = table.concat(login_accepted, " ") -- login success
+        local rejectString       = table.concat(login_rejected, " ") -- login failed
+        local outlet1OnString    = table.concat(one_status_on,  " ") -- outlet 1 on
+        local outlet1OffString   = table.concat(one_status_off, " ") -- outlet 1 off
+        local outlet2OnString    = table.concat(two_status_on,  " ") -- outlet 2 on
+        local outlet2OffString   = table.concat(two_status_off, " ") -- outlet 2 off
         
         -- parse error messages accordingly
 
-
         if dataString == loginString then
-            print("[Successfully logged in]")
+            print("[Login] Success")
+            Controls.access.String = "Granted"
+            Controls.access.Color  = "green"
 
             -- request state of the outlets
-            --socket:Write(stringfromBytes(get_one))
-            --socket:Write(stringfromBytes(get_two))
+            print("[Requesting Outlet 1 status]")
+            socket:Write(stringfromBytes(get_one))
 
-            -- set the front end accordingly
-            -- Controls.Outlet1.Boolean = false
-            -- Controls.Outlet2.Boolean = false
+            print("[Requesting Outlet 2 status]")
+            socket:Write(stringfromBytes(get_two))
 
         elseif dataString == pingString then
             local pongString = hexStringFromArray(pong)
@@ -406,6 +457,26 @@ if Controls then
             print("[Received a ping] "..table.concat(byteString, " "))
             print("[Sending a pong] "..pongString)
             socket:Write(stringfromBytes(pong))
+        elseif dataString == outlet1OnString then
+            print("[Outlet 1] status: ON")
+            Controls.Outlet1.Boolean = true -- set button state
+            Controls.led_1.Boolean   = true -- set led            
+        elseif dataString == outlet1OffString then
+            print("[Outlet 1] status: OFF")
+            Controls.Outlet1.Boolean = false -- '''
+            Controls.led_1.Boolean   = false -- unset led
+        elseif dataString == outlet2OnString then
+            print("[Outlet 2] status: ON")
+            Controls.Outlet2.Boolean = true
+            Controls.led_2.Boolean   = true
+        elseif dataString == outlet2OffString then
+            print("[Outlet 2] status: OFF")
+            Controls.Outlet2.Boolean = false
+            Controls.led_2.Boolean   = false
+        elseif dataString == rejectString then
+            print("[Login] Failed")
+            Controls.access.String = "Denied"
+            Controls.access.Color  = "red"
         else
             print("[Data Received] "..table.concat(byteString, " "))
         end
@@ -569,44 +640,78 @@ if Controls then
             end
         else -- untoggled
             print("Disconnect")
-            Controls.led_1.Boolean = false
-            Controls.led_2.Boolean = false
-
+            -- set the button
             Controls.connect.Color = "red"
             Controls.connect.Legend = "Disconnected"
             Controls.connect.Boolean = false
+
+            -- reset LEDs
+            Controls.led_1.Boolean = false
+            Controls.led_2.Boolean = false
+
+            -- reset the access text box
+            Controls.access.String = ""
+            Controls.access.Color  = "gray"
             socket:Disconnect()
         end
     end
 
     local function toggleOutlet1(arg)
         if arg.Value == 1.0 then
-            local hex = hexStringFromArray(one_on)
-
-            print("[outlet 1] toggle on: "..hex)
-            Controls.led_1.Boolean = true
-            socket:Write(stringfromBytes(one_on))
+            if Controls.connect.Legend == "Connected" then
+                if Controls.access.String == "Granted" then
+                    local hex = hexStringFromArray(one_on)
+                    print("[Outlet 1] Toggle ON: "..hex)
+                    Controls.led_1.Boolean = true
+                    socket:Write(stringfromBytes(one_on))
+                else
+                    print("[Outlet 1] Toggle ON error: access denied")
+                end
+            else
+                print("[Outlet 1] Toggle ON error: socket disconnected")
+            end
         else
-            local hex = hexStringFromArray(one_off)
-
-            print("[outlet 1] toggle off: "..hex)
-            Controls.led_1.Boolean = false
-            socket:Write(stringfromBytes(one_off))
+            if Controls.connect.Legend == "Connected" then
+                if Controls.access.String == "Granted" then
+                        local hex = hexStringFromArray(one_off)
+                        print("[Outlet 1] Toggle OFF: "..hex)
+                        Controls.led_1.Boolean = false
+                        socket:Write(stringfromBytes(one_off))
+                else
+                    print("[Outlet 1] Toggle OFF error: access denied")
+                end
+            else
+                print("[Outlet 1] Toggle OFF error: socket disconnected")
+            end
         end
     end
     local function toggleOutlet2(arg)
         if arg.Value == 1.0 then
-            local hex = hexStringFromArray(two_on)
-
-            print("[outlet 2] toggle on: "..hex)
-            Controls.led_2.Boolean = true
-            socket:Write(stringfromBytes(two_on))
+            if Controls.connect.Legend == "Connected" then
+                if Controls.access.String == "Granted" then
+                    local hex = hexStringFromArray(two_on)
+                    print("[Outlet 2] Toggle ON: "..hex)
+                    Controls.led_2.Boolean = true
+                    socket:Write(stringfromBytes(two_on))
+                else
+                    print("[Outlet 2] Toggle ON error: access denied")
+                end
+            else
+                print("[Outlet 2] Toggle ON error: socket disconnected")
+            end
         else
-            local hex = hexStringFromArray(two_off)
-
-            print("[outlet 2] toggle off: "..hex)
-            Controls.led_2.Boolean = false
-            socket:Write(stringfromBytes(two_off))
+            if Controls.connect.Legend == "Connected" then
+                if Controls.access.String == "Granted" then
+                    local hex = hexStringFromArray(two_off)
+                    print("[Outlet 2] Toggle OFF: "..hex)
+                    Controls.led_2.Boolean = false
+                    socket:Write(stringfromBytes(two_off))
+                else
+                    print("[Outlet 2] Toggle OFF error: socket disconnected")
+                end
+            else
+                print("[Outlet 2] Toggle OFF error: socket disconnected")
+            end
         end
     end
 

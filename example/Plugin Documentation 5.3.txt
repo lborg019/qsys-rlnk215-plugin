@@ -1,10 +1,10 @@
 Q-SYS Plugin "Documentation" 0.5 - 27-05-2016
 
 File Extensions Note: Plugins can have either .lua* or .qplug as a file extension and will be recognized. The reason for the * after .lua is that adding extra characters
-after .lua won't hide the file from Q-SYS. To Q-SYS, 'example.lua' is just as visible as 'example.luaold'. Using something like 'example.lua.old' will result in hiding
+after .lua will not hide the file from Q-SYS. To Q-SYS, 'example.lua' is just as visible as 'example.luaold'. Using something like 'example.lua.old' will result in hiding
 the file from Q-SYS.
 
-PLUGIN FILE SECTIONS-----
+PLUGIN FILE SECTIONS
 
 PluginInfo section:
 
